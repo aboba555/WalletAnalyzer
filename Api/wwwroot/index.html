@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BONK TERMINAL</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='2' width='28' height='28' rx='4' stroke='%23ff6600' stroke-width='2'/%3E%3Cpath d='M8 12h4v8H8zM12 12h4v4h-4zM16 16h4v4h-4zM20 12h4v8h-4z' fill='%23ff6600'/%3E%3Ccircle cx='10' cy='10' r='2' fill='%23ff6600'/%3E%3Ccircle cx='22' cy='10' r='2' fill='%23ff6600'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="terminal">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-main">
+            <div class="logo-section">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" rx="4" stroke="currentColor" stroke-width="2"/>
+                    <path d="M8 12h4v8H8zM12 12h4v4h-4zM16 16h4v4h-4zM20 12h4v8h-4z" fill="currentColor"/>
+                    <circle cx="10" cy="10" r="2" fill="currentColor"/>
+                    <circle cx="22" cy="10" r="2" fill="currentColor"/>
+                </svg>
+                <div class="logo">BONK TERMINAL</div>
+            </div>
+            <div class="status-cluster">
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>NETWORK:</span>
+                    <span class="status-value">MAINNET-BETA</span>
+                </div>
+                <div class="status-item">
+                    <span>BLOCK:</span>
+                    <span class="status-value" id="block-height">---</span>
+                </div>
+                <div class="status-item">
+                    <span>TIME:</span>
+                    <span class="status-value" id="current-time">--:--:--</span>
+                </div>
+            </div>
+        </div>
+        <div class="command-section">
+            <span class="cmd-prompt">root@solana</span>
+            <span class="cmd-path">~/analyze</span>
+            <span class="cmd-separator">$</span>
+            <div class="cmd-input-wrapper">
+                <input
+                        type="text"
+                        class="cmd-input"
+                        id="wallet-input"
+                        placeholder="enter wallet address..."
+                        spellcheck="false"
+                        autocomplete="off"
+                >
+            </div>
+            <button class="execute-btn" id="analyze-btn">EXECUTE</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Empty State -->
+        <div class="state-container" id="empty-state">
+            <pre class="empty-art">
+  ██████╗  ██████╗ ███╗   ██╗██╗  ██╗
+  ██╔══██╗██╔═══██╗████╗  ██║██║ ██╔╝
+  ██████╔╝██║   ██║██╔██╗ ██║█████╔╝
+  ██╔══██╗██║   ██║██║╚██╗██║██╔═██╗
+  ██████╔╝╚██████╔╝██║ ╚████║██║  ██╗
+  ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝
+  ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗
+  ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║
+     ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║
+     ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║
+     ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗
+     ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
+
+       ╔═════════════════════════════════════════════╗
+       ║  ADVANCED WALLET INTELLIGENCE & ANALYSIS   ║
+       ║        POWERED BY AI + BLOCKCHAIN          ║
+       ╚═════════════════════════════════════════════╝
+            </pre>
+            <div class="empty-title">AWAITING INPUT</div>
+            <div class="empty-subtitle">Enter a Solana wallet address to initiate analysis protocol</div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="state-container hidden" id="loading-state">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">ANALYZING</div>
+            <div class="loading-sub">Fetching blockchain data and processing analysis...</div>
+        </div>
+
+        <!-- Error State -->
+        <div class="state-container hidden" id="error-state">
+            <div class="error-box">
+                <div class="error-header">[ SYSTEM ERROR ]</div>
+                <div class="error-text" id="error-text">An error occurred</div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-container hidden" id="results">
+            <!-- Analysis Panel -->
+            <div class="panel panel-analysis">
+                <div class="panel-header">
+                    <span class="panel-title">Risk Analysis</span>
+                    <div class="panel-meta">
+                        <span class="panel-badge">AI-POWERED</span>
+                        <span class="panel-badge" id="wallet-display">---</span>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="risk-display">
+                        <div class="risk-score-box">
+                            <div class="risk-label">Risk Score</div>
+                            <div class="risk-value" id="risk-score">--</div>
+                        </div>
+                        <div class="risk-bar-container">
+                            <div class="risk-bar">
+                                <div class="risk-bar-fill" id="risk-bar-fill"></div>
+                            </div>
+                            <div class="risk-scale">
+                                <span>0 - SAFE</span>
+                                <span>50 - MODERATE</span>
+                                <span>100 - CRITICAL</span>
+                            </div>
+                        </div>
+                        <div class="risk-level-box">
+                            <div class="risk-label">Level</div>
+                            <div class="risk-level" id="risk-level">--</div>
+                        </div>
+                    </div>
+
+                    <div class="summary-box">
+                        <div class="summary-header">// Analysis Summary</div>
+                        <div class="summary-text" id="summary-text">Loading...</div>
+                    </div>
+
+                    <div class="alerts-grid">
+                        <div class="alert-box">
+                            <div class="alert-header">
+                                <div class="alert-icon warning">!</div>
+                                <div class="alert-title warning">Warnings</div>
+                            </div>
+                            <div class="alert-list" id="warnings-list"></div>
+                        </div>
+                        <div class="alert-box">
+                            <div class="alert-header">
+                                <div class="alert-icon recommend">></div>
+                                <div class="alert-title recommend">Recommendations</div>
+                            </div>
+                            <div class="alert-list" id="recommendations-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Panels: Tokens + Transactions -->
+            <div class="data-panels">
+                <!-- Tokens Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Token Holdings</span>
+                        <span class="panel-badge" id="tokens-count">0 TOKENS</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="tokens-grid">
+                            <div class="token-row header">
+                                <span>Address</span>
+                                <span style="text-align:right">Balance</span>
+                                <span style="text-align:right">Value USD</span>
+                            </div>
+                            <div id="tokens-list"></div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="total-label">Total Portfolio Value</span>
+                        <span class="total-value" id="total-value">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- Transactions Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Transaction History</span>
+                        <span class="panel-badge" id="tx-count">0 TXS</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="tx-list" id="tx-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-bar">
+        <div>BONK TERMINAL // POWERED BY SOLANATRACKER + BIRDEYE</div>
+        <div class="easter-egg">[ James Bonk coming soon ]</div>
+        <div class="footer-links">
+            <a href="https://solscan.io" target="_blank">EXPLORER</a>
+            <a href="https://docs.solana.com" target="_blank">DOCS</a>
+        </div>
+    </footer>
+</div>
+
+<script>
+    const API_BASE = '/api';
+
+    // DOM
+    const walletInput = document.getElementById('wallet-input');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const emptyState = document.getElementById('empty-state');
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const results = document.getElementById('results');
+
+    // Time & Block
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('current-time').textContent = now.toTimeString().split(' ')[0];
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Fake block height
+    let blockHeight = 250000000 + Math.floor(Math.random() * 1000000);
+    function updateBlock() {
+        blockHeight += Math.floor(Math.random() * 3);
+        document.getElementById('block-height').textContent = blockHeight.toLocaleString();
+    }
+    setInterval(updateBlock, 2000);
+    updateBlock();
+
+    // Utils
+    function truncate(str, start = 6, end = 4) {
+        if (!str || str.length < start + end + 3) return str;
+        return str.slice(0, start) + '...' + str.slice(-end);
+    }
+
+    function formatUSD(val) {
+        if (val < 0.01) return '$' + val.toFixed(6);
+        if (val < 1) return '$' + val.toFixed(4);
+        return '$' + val.toFixed(2);
+    }
+
+    function formatBalance(val) {
+        if (val < 0.0001) return val.toExponential(2);
+        if (val < 1) return val.toFixed(6);
+        return val.toFixed(4);
+    }
+
+    function formatTokenAmount(val) {
+        const absVal = Math.abs(val);
+        if (absVal === 0) return '0';
+        if (absVal < 0.000001) return val.toExponential(2);
+        if (absVal < 0.001) return val.toFixed(6);
+        if (absVal < 1) return val.toFixed(4);
+        if (absVal < 1000) return val.toFixed(3);
+        if (absVal < 1000000) return (val / 1000).toFixed(2) + 'K';
+        return (val / 1000000).toFixed(2) + 'M';
+    }
+
+    function getRiskClass(score) {
+        if (score <= 33) return 'low';
+        if (score <= 66) return 'medium';
+        return 'high';
+    }
+
+    function getRiskLabel(score) {
+        if (score <= 33) return 'LOW';
+        if (score <= 66) return 'MODERATE';
+        return 'HIGH';
+    }
+
+    function formatDate(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString().slice(0, 5);
+    }
+
+    // States
+    function showState(state) {
+        emptyState.classList.add('hidden');
+        loadingState.classList.add('hidden');
+        errorState.classList.add('hidden');
+        results.classList.add('hidden');
+
+        if (state === 'empty') emptyState.classList.remove('hidden');
+        if (state === 'loading') loadingState.classList.remove('hidden');
+        if (state === 'error') errorState.classList.remove('hidden');
+        if (state === 'results') results.classList.remove('hidden');
+    }
+
+    function showError(msg) {
+        document.getElementById('error-text').textContent = msg;
+        showState('error');
+    }
+
+    // Render
+    function render(data) {
+        const { wallet, analysis } = data;
+
+        // Wallet display
+        document.getElementById('wallet-display').textContent = truncate(wallet.walletAddress, 8, 6);
+
+        // Risk
+        const riskClass = getRiskClass(analysis.riskScore);
+        document.getElementById('risk-score').textContent = analysis.riskScore;
+        document.getElementById('risk-score').className = 'risk-value ' + riskClass;
+        document.getElementById('risk-bar-fill').className = 'risk-bar-fill ' + riskClass;
+        document.getElementById('risk-bar-fill').style.width = analysis.riskScore + '%';
+        document.getElementById('risk-level').textContent = getRiskLabel(analysis.riskScore);
+        document.getElementById('risk-level').className = 'risk-level ' + riskClass;
+
+        // Summary
+        document.getElementById('summary-text').textContent = analysis.summary;
+
+        // Warnings
+        document.getElementById('warnings-list').innerHTML =
+            analysis.warnings.length > 0
+                ? analysis.warnings.map(w => `<div class="alert-item">${w}</div>`).join('')
+                : '<div class="alert-item">No warnings detected</div>';
+
+        // Recommendations
+        document.getElementById('recommendations-list').innerHTML =
+            analysis.recommendations.length > 0
+                ? analysis.recommendations.map(r => `<div class="alert-item">${r}</div>`).join('')
+                : '<div class="alert-item">No recommendations</div>';
+
+        // Tokens
+        document.getElementById('tokens-count').textContent = wallet.tokens.length + ' TOKENS';
+        document.getElementById('tokens-list').innerHTML = wallet.tokens.map(t => `
+            <div class="token-row">
+                <span class="token-address">${truncate(t.address, 8, 6)}</span>
+                <span class="token-balance">${formatBalance(t.balance)}</span>
+                <span class="token-value">${formatUSD(t.valueUsd)}</span>
+            </div>
+        `).join('');
+
+        // Total
+        document.getElementById('total-value').textContent = formatUSD(wallet.totalValueUsd);
+
+        // Transactions
+        document.getElementById('tx-count').textContent = wallet.transactions.length + ' TXS';
+        document.getElementById('tx-list').innerHTML = wallet.transactions.slice(0, 50).map(tx => {
+            const actionClass = tx.action === 'send' ? 'send' : tx.action === 'received' ? 'received' : 'unknown';
+            const changes = tx.balanceChange.map(bc => {
+                const decimals = bc.decimals || 9;
+                const actualAmount = bc.amount / Math.pow(10, decimals);
+                const cls = bc.amount < 0 ? 'negative' : 'positive';
+                const prefix = actualAmount > 0 ? '+' : '';
+                const formatted = formatTokenAmount(actualAmount);
+                return `<span class="tx-change ${cls}">${prefix}${formatted} ${bc.symbol}</span>`;
+            }).join('');
+
+            return `
+                <div class="tx-item">
+                    <div class="tx-row-top">
+                        <span class="tx-hash">${truncate(tx.txHash, 8, 6)}</span>
+                        <span class="tx-action ${actionClass}">${tx.action.toUpperCase()}</span>
+                    </div>
+                    <div class="tx-row-bottom">
+                        <span class="tx-time">${formatDate(tx.blockTime)}</span>
+                        <div class="tx-changes">${changes}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        showState('results');
+    }
+
+    // Analyze
+    async function analyze() {
+        const addr = walletInput.value.trim();
+
+        if (!addr) {
+            showError('Please enter a wallet address');
+            return;
+        }
+
+        if (addr.length < 32 || addr.length > 44) {
+            showError('Invalid Solana wallet address format');
+            return;
+        }
+
+        showState('loading');
+        analyzeBtn.disabled = true;
+
+        try {
+            const res = await fetch(`${API_BASE}/wallet/${addr}/analysis`);
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Analysis failed');
+            }
+
+            const data = await res.json();
+            render(data);
+
+        } catch (e) {
+            showError(e.message);
+        } finally {
+            analyzeBtn.disabled = false;
+        }
+    }
+
+    // Events
+    analyzeBtn.addEventListener('click', analyze);
+    walletInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') analyze();
+    });
+
+    walletInput.focus();
+</script>
+</body>
+</html>

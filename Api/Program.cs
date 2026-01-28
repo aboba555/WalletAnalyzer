@@ -6,7 +6,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://bonkterminal.net")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -25,6 +25,8 @@ builder.Services.AddBusinessLogic(builder.Configuration);
 
 var app = builder.Build();
 
+app.UseStaticFiles();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -36,5 +38,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseCors();
 app.MapControllers();
-
+app.MapFallbackToFile("index.html");
 app.Run();

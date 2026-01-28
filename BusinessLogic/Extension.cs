@@ -25,6 +25,9 @@ public static class Extension
             client.DefaultRequestHeaders.Add("x-api-key", apiKey);
             client.DefaultRequestHeaders.Add("x-chain","solana");
         });
+        
+        services.AddScoped<IRiskCalculatorService, RiskCalculatorService>();
+        
         services.AddHttpClient<IOpenAiService, OpenAiService>(client =>
         {
             client.BaseAddress = new Uri("https://api.openai.com");
